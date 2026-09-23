@@ -55,10 +55,16 @@
       "@react-native-community/datetimepicker"
     ],
     "extra": {
-      "supportsRTL": true
+      "supportsRTL": true,
+      "eas": {
+        "projectId": "9b7f4c5d-30ca-48f0-8681-71177c9072f3"
+      }
     },
     "runtimeVersion": {
       "policy": "sdkVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/9b7f4c5d-30ca-48f0-8681-71177c9072f3"
     }
   }
 }
