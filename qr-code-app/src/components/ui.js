@@ -1,7 +1,13 @@
-import { Ionicons } from '@expo/vector-icons';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { Alert, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { baseText, colors, font, rtl } from '../theme';
+
+// Alert لا يعمل في نسخة الويب، فنستخدم نافذة المتصفح هناك
+export function showMessage(title, message) {
+  if (Platform.OS === 'web') window.alert(`${title}\n${message}`);
+  else Alert.alert(title, message);
+}
 
 export function AppText({ style, ...props }) {
   return <Text {...props} style={[baseText, style]} />;

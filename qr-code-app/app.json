@@ -24,17 +24,15 @@
       "package": "com.enjazat.qrcode"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "output": "single",
+      "name": "مولد الباركود",
+      "shortName": "مولد الباركود",
+      "lang": "ar",
+      "themeColor": "#0E7C66",
+      "backgroundColor": "#F5F7F6"
     },
     "plugins": [
-      [
-        "expo-camera",
-        {
-          "cameraPermission": "يحتاج التطبيق الكاميرا لقراءة الباركود.",
-          "recordAudioAndroid": false,
-          "microphonePermission": false
-        }
-      ],
       [
         "expo-media-library",
         {
@@ -46,7 +44,7 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "يحتاج التطبيق الوصول إلى الصور لاختيار شعار أو قراءة باركود من صورة.",
+          "photosPermission": "يحتاج التطبيق الوصول إلى الصور لاختيار شعار يوضع في منتصف الباركود.",
           "cameraPermission": false,
           "microphonePermission": false
         }

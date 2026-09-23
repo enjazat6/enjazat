@@ -62,7 +62,7 @@ function parseCoordinate(value, max) {
 }
 
 // محاولة استخراج الإحداثيات من رابط خرائط جوجل
-export function coordsFromMapsLink(link) {
+function coordsFromMapsLink(link) {
   let text = toLatinDigits(link);
   try {
     text = decodeURIComponent(text);

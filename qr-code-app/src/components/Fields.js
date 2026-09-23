@@ -1,9 +1,9 @@
-import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/datetimepicker';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useState } from 'react';
 import { Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
-import { baseText, colors, font, rtl } from '../theme';
+import { colors, font, inputBase, rtl } from '../theme';
+import { DateTimeInput } from './DateTimeInput';
 import { AppText } from './ui';
 
 const KEYBOARDS = {
@@ -12,29 +12,6 @@ const KEYBOARDS = {
   phone: { keyboardType: 'phone-pad' },
   decimal: { keyboardType: Platform.OS === 'ios' ? 'numbers-and-punctuation' : 'numeric' },
 };
-
-const MONTHS = [
-  'يناير',
-  'فبراير',
-  'مارس',
-  'أبريل',
-  'مايو',
-  'يونيو',
-  'يوليو',
-  'أغسطس',
-  'سبتمبر',
-  'أكتوبر',
-  'نوفمبر',
-  'ديسمبر',
-];
-
-function formatDateTime(date) {
-  const h = date.getHours();
-  const hour12 = h % 12 === 0 ? 12 : h % 12;
-  const minutes = String(date.getMinutes()).padStart(2, '0');
-  const period = h < 12 ? 'صباحاً' : 'مساءً';
-  return `${date.getDate()} ${MONTHS[date.getMonth()]} ${date.getFullYear()} - ${hour12}:${minutes} ${period}`;
-}
 
 export function Field({ field, value, onChange }) {
   if (field.type === 'choice')
@@ -117,55 +94,10 @@ function ChoiceField({ field, value, onChange }) {
 }
 
 function DateTimeField({ field, value, onChange }) {
-  const [iosOpen, setIosOpen] = useState(false);
-
-  const open = () => {
-    if (Platform.OS === 'android') {
-      // أندرويد: نختار التاريخ أولاً ثم الوقت
-      DateTimePickerAndroid.open({
-        value,
-        mode: 'date',
-        onChange: (event, date) => {
-          if (event.type !== 'set' || !date) return;
-          DateTimePickerAndroid.open({
-            value: date,
-            mode: 'time',
-            is24Hour: false,
-            onChange: (e2, time) => {
-              if (e2.type !== 'set' || !time) return;
-              const result = new Date(date);
-              result.setHours(time.getHours(), time.getMinutes(), 0, 0);
-              onChange(result);
-            },
-          });
-        },
-      });
-    } else {
-      setIosOpen((o) => !o);
-    }
-  };
-
   return (
     <View style={styles.field}>
       <Label field={field} />
-      <Pressable onPress={open} style={[styles.input, styles.dateButton]}>
-        <Ionicons name="calendar-outline" size={22} color={colors.primary} />
-        <AppText style={styles.dateText}>{formatDateTime(value)}</AppText>
-      </Pressable>
-      {Platform.OS === 'ios' && iosOpen ? (
-        <View style={styles.iosPicker}>
-          <DateTimePicker
-            value={value}
-            mode="datetime"
-            display="spinner"
-            locale="ar"
-            onChange={(_, date) => date && onChange(date)}
-          />
-          <Pressable onPress={() => setIosOpen(false)} style={styles.doneButton}>
-            <AppText style={styles.doneText}>تم</AppText>
-          </Pressable>
-        </View>
-      ) : null}
+      <DateTimeInput value={value} onChange={onChange} />
     </View>
   );
 }
@@ -187,16 +119,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   input: {
-    ...baseText,
+    ...inputBase,
     flex: 1,
-    minHeight: 54,
-    backgroundColor: colors.white,
-    borderWidth: 1.5,
-    borderColor: colors.border,
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: font.body + 1,
   },
   multiline: {
     minHeight: 120,
@@ -236,30 +160,5 @@ const styles = StyleSheet.create({
   },
   choiceTextSelected: {
     color: colors.primaryDark,
-  },
-  dateButton: {
-    flexDirection: rtl.row,
-    alignItems: 'center',
-    gap: 10,
-  },
-  dateText: {
-    flex: 1,
-  },
-  iosPicker: {
-    marginTop: 8,
-    backgroundColor: colors.white,
-    borderRadius: 12,
-    overflow: 'hidden',
-  },
-  doneButton: {
-    padding: 14,
-    alignItems: 'center',
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-  },
-  doneText: {
-    color: colors.primary,
-    fontWeight: '700',
-    textAlign: 'center',
   },
 });

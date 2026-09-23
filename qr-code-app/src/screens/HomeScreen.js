@@ -1,11 +1,11 @@
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { AppText } from '../components/ui';
 import { QR_TYPES } from '../qrTypes';
 import { colors, font, rtl } from '../theme';
 
-export default function HomeScreen({ onSelectType, onOpenScanner }) {
+export default function HomeScreen({ onSelectType }) {
   return (
     <ScrollView contentContainerStyle={styles.content}>
       <View style={styles.hero}>
@@ -13,21 +13,6 @@ export default function HomeScreen({ onSelectType, onOpenScanner }) {
         <AppText style={styles.appName}>مولّد الباركود</AppText>
         <AppText style={styles.subtitle}>اختر نوع الباركود الذي تريد إنشاءه</AppText>
       </View>
-
-      <Pressable
-        onPress={onOpenScanner}
-        style={({ pressed }) => [styles.scanCard, pressed && styles.pressed]}
-        accessibilityRole="button"
-      >
-        <View style={styles.scanIcon}>
-          <Ionicons name="scan" size={30} color={colors.white} />
-        </View>
-        <View style={styles.flex}>
-          <AppText style={styles.scanTitle}>قراءة باركود</AppText>
-          <AppText style={styles.scanText}>امسح أي باركود بالكاميرا واعرف محتواه</AppText>
-        </View>
-        <Ionicons name={rtl.forwardIcon} size={24} color={colors.primary} />
-      </Pressable>
 
       <AppText style={styles.sectionTitle}>إنشاء باركود جديد</AppText>
 
@@ -59,9 +44,6 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 32,
   },
-  flex: {
-    flex: 1,
-  },
   hero: {
     alignItems: 'center',
     backgroundColor: colors.primary,
@@ -80,34 +62,6 @@ const styles = StyleSheet.create({
   subtitle: {
     color: '#D6EFE8',
     textAlign: 'center',
-  },
-  scanCard: {
-    flexDirection: rtl.row,
-    alignItems: 'center',
-    gap: 14,
-    backgroundColor: colors.card,
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: 2,
-    borderColor: colors.primary,
-    marginBottom: 22,
-  },
-  scanIcon: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  scanTitle: {
-    fontSize: font.heading,
-    fontWeight: '700',
-  },
-  scanText: {
-    color: colors.textMuted,
-    fontSize: font.small,
-    marginTop: 2,
   },
   sectionTitle: {
     fontSize: font.heading,

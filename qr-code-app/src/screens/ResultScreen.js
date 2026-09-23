@@ -1,13 +1,11 @@
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import * as ImagePicker from 'expo-image-picker';
-import * as MediaLibrary from 'expo-media-library/legacy';
-import * as Sharing from 'expo-sharing';
 import { useRef, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
-import { captureRef } from 'react-native-view-shot';
 
-import { AppText, Button } from '../components/ui';
+import { AppText, Button, showMessage } from '../components/ui';
+import { saveQrImage, shareQrImage } from '../qrImage';
 import { colors, font, qrColors, rtl } from '../theme';
 
 export default function ResultScreen({ data }) {
@@ -18,25 +16,15 @@ export default function ResultScreen({ data }) {
   const [logo, setLogo] = useState(null);
   const [busy, setBusy] = useState(false);
 
-  // التقاط صورة PNG عالية الدقة للباركود (مع الهامش الأبيض)
-  const capture = () => captureRef(shotRef, { format: 'png', quality: 1, result: 'tmpfile' });
+  const imageOptions = () => ({ viewRef: shotRef, data, color, logo });
 
   const save = async () => {
     setBusy(true);
     try {
-      const permission = await MediaLibrary.requestPermissionsAsync(true, ['photo']);
-      if (!permission.granted) {
-        Alert.alert(
-          'لا يوجد إذن',
-          'اسمح للتطبيق بالوصول إلى الصور من الإعدادات حتى تتمكن من حفظ الباركود.',
-        );
-        return;
-      }
-      const uri = await capture();
-      await MediaLibrary.saveToLibraryAsync(uri);
-      Alert.alert('تم الحفظ', 'تم حفظ صورة الباركود في معرض الصور.');
+      const result = await saveQrImage(imageOptions());
+      showMessage(result.title, result.message);
     } catch {
-      Alert.alert('تعذّر الحفظ', 'لم نتمكن من حفظ الصورة. جرّب زر المشاركة ثم اختر "حفظ الصورة".');
+      showMessage('تعذّر الحفظ', 'لم نتمكن من حفظ الصورة. جرّب زر المشاركة ثم اختر "حفظ الصورة".');
     } finally {
       setBusy(false);
     }
@@ -45,14 +33,9 @@ export default function ResultScreen({ data }) {
   const share = async () => {
     setBusy(true);
     try {
-      const uri = await capture();
-      await Sharing.shareAsync(uri, {
-        mimeType: 'image/png',
-        UTI: 'public.png',
-        dialogTitle: 'مشاركة الباركود',
-      });
+      await shareQrImage(imageOptions());
     } catch {
-      Alert.alert('تعذّرت المشاركة', 'حدث خطأ أثناء تجهيز الصورة للمشاركة.');
+      showMessage('تعذّرت المشاركة', 'حدث خطأ أثناء تجهيز الصورة للمشاركة.');
     } finally {
       setBusy(false);
     }

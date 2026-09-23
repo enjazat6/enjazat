@@ -25,7 +25,8 @@ Run lint and typecheck before declaring any task done.
 
 ## Navigation
 
-- This app intentionally uses simple state-based navigation in `App.js` (home → form → result, home → scanner) instead of Expo Router, to keep it small and Expo Go friendly.
+- This app intentionally uses simple state-based navigation in `App.js` (home → form → result) instead of Expo Router, to keep it small and Expo Go friendly.
+- Web is supported: platform-specific files use the `.web.js` suffix (`src/qrImage.web.js`, `src/components/DateTimeInput.web.js`). Rebuild the uploadable static site with `npm run build:web` (writes `web-dist/` and `qr-code-app-web.zip`).
 - UI is Arabic-only and right-to-left. Use the helpers in `src/theme.js` (`rtl.row`, `rtl.textAlign`, `rtl.left`, ...) instead of hard-coded `row`/`left`/`right`, so layout stays correct whether or not the device is in RTL mode.
 
 ## Building with EAS

@@ -7,10 +7,9 @@ import { Header } from './src/components/ui';
 import FormScreen from './src/screens/FormScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import ResultScreen from './src/screens/ResultScreen';
-import ScannerScreen from './src/screens/ScannerScreen';
 import { colors } from './src/theme';
 
-// تنقل بسيط بالحالة: الرئيسية ← النموذج ← النتيجة، أو الرئيسية ← القارئ
+// تنقل بسيط بالحالة: الرئيسية ← النموذج ← النتيجة
 export default function App() {
   const [screen, setScreen] = useState('home');
   const [type, setType] = useState(null);
@@ -34,7 +33,6 @@ export default function App() {
   const titles = {
     form: type?.title,
     result: 'الباركود جاهز',
-    scanner: 'قراءة باركود',
   };
 
   return (
@@ -50,7 +48,6 @@ export default function App() {
               setType(t);
               setScreen('form');
             }}
-            onOpenScanner={() => setScreen('scanner')}
           />
         ) : null}
 
@@ -69,7 +66,6 @@ export default function App() {
         ) : null}
 
         {screen === 'result' ? <ResultScreen data={data} /> : null}
-        {screen === 'scanner' ? <ScannerScreen /> : null}
       </SafeAreaView>
     </SafeAreaProvider>
   );

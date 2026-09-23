@@ -16,7 +16,6 @@ export const rtl = {
   paddingLeft: isRTL ? 'paddingRight' : 'paddingLeft',
   // سهم "رجوع" يشير لليمين في الواجهات العربية
   backIcon: 'arrow-forward',
-  forwardIcon: 'chevron-back',
 };
 
 export const colors = {
@@ -56,4 +55,17 @@ export const baseText = {
   fontSize: font.body,
   textAlign: rtl.textAlign,
   writingDirection: 'rtl',
+};
+
+// شكل حقل الإدخال المشترك بين كل الحقول
+export const inputBase = {
+  ...baseText,
+  minHeight: 54,
+  backgroundColor: colors.white,
+  borderWidth: 1.5,
+  borderColor: colors.border,
+  borderRadius: 12,
+  paddingHorizontal: 14,
+  paddingVertical: 12,
+  fontSize: font.body + 1,
 };
