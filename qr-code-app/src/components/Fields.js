@@ -4,6 +4,7 @@ import { Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { colors, font, inputBase, rtl } from '../theme';
 import { DateTimeInput } from './DateTimeInput';
+import { UploadField } from './UploadField';
 import { AppText } from './ui';
 
 const KEYBOARDS = {
@@ -13,7 +14,14 @@ const KEYBOARDS = {
   decimal: { keyboardType: Platform.OS === 'ios' ? 'numbers-and-punctuation' : 'numeric' },
 };
 
-export function Field({ field, value, onChange }) {
+export function Field({ field, value, onChange, onError }) {
+  if (field.type === 'upload')
+    return (
+      <View style={styles.field}>
+        <Label field={field} />
+        <UploadField value={value} onChange={onChange} onError={onError} />
+      </View>
+    );
   if (field.type === 'choice')
     return <ChoiceField field={field} value={value} onChange={onChange} />;
   if (field.type === 'datetime')

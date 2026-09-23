@@ -90,6 +90,16 @@ const isEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
 
 export const QR_TYPES = [
   {
+    id: 'menu',
+    title: 'منيو',
+    description: 'ارفع صورة أو ملف PDF للمنيو ويتحول إلى باركود مباشرة',
+    icon: 'restaurant',
+    // يُنشأ الباركود تلقائياً بمجرد انتهاء الرفع
+    autoGenerate: true,
+    fields: [{ key: 'file', label: 'ملف المنيو', type: 'upload', required: true }],
+    build: ({ file }) => file.url,
+  },
+  {
     id: 'url',
     title: 'رابط',
     description: 'رابط موقع أو صفحة إنترنت',

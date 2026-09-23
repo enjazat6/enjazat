@@ -10,18 +10,20 @@ export default function FormScreen({ type, onGenerated }) {
   const [values, setValues] = useState(() => initialValues(type));
   const [error, setError] = useState(null);
 
-  const setValue = (key, value) => {
-    setValues((v) => ({ ...v, [key]: value }));
-    setError(null);
-  };
-
-  const generate = () => {
-    const result = buildPayload(type, values);
+  const generate = (current = values) => {
+    const result = buildPayload(type, current);
     if (result.error) {
       setError(result.error);
       return;
     }
     onGenerated(result.data);
+  };
+
+  const setValue = (key, value) => {
+    const next = { ...values, [key]: value };
+    setValues(next);
+    setError(null);
+    if (type.autoGenerate && value) generate(next);
   };
 
   return (
@@ -38,6 +40,7 @@ export default function FormScreen({ type, onGenerated }) {
             field={field}
             value={values[field.key]}
             onChange={(v) => setValue(field.key, v)}
+            onError={setError}
           />
         ))}
 
@@ -47,7 +50,14 @@ export default function FormScreen({ type, onGenerated }) {
           </View>
         ) : null}
 
-        <Button title="إنشاء الباركود" icon="qr-code" onPress={generate} style={styles.button} />
+        {type.autoGenerate && !values.file ? null : (
+          <Button
+            title="إنشاء الباركود"
+            icon="qr-code"
+            onPress={() => generate()}
+            style={styles.button}
+          />
+        )}
       </ScrollView>
     </KeyboardAvoidingView>
   );
