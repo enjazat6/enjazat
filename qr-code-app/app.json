@@ -1,0 +1,61 @@
+{
+  "expo": {
+    "name": "مولد الباركود",
+    "slug": "qr-code-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.enjazat.qrcode",
+      "infoPlist": {
+        "CFBundleDevelopmentRegion": "ar",
+        "CFBundleAllowMixedLocalizations": true
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "package": "com.enjazat.qrcode"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "يحتاج التطبيق الكاميرا لقراءة الباركود.",
+          "recordAudioAndroid": false,
+          "microphonePermission": false
+        }
+      ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "يحتاج التطبيق الوصول إلى الصور لحفظ الباركود.",
+          "savePhotosPermission": "يحتاج التطبيق إذن حفظ الصور لحفظ الباركود في المعرض.",
+          "isAccessMediaLocationEnabled": false
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "يحتاج التطبيق الوصول إلى الصور لاختيار شعار أو قراءة باركود من صورة.",
+          "cameraPermission": false,
+          "microphonePermission": false
+        }
+      ],
+      "expo-sharing",
+      "@react-native-community/datetimepicker"
+    ],
+    "extra": {
+      "supportsRTL": true
+    }
+  }
+}
