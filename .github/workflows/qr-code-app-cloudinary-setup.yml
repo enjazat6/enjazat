@@ -48,13 +48,18 @@ jobs:
           API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
         run: |
           set -euo pipefail
-          UPLOAD="https://api.cloudinary.com/v1_1/$CLOUD_NAME/auto/upload"
           # 1x1 PNG and a minimal one-page PDF
           echo 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==' | base64 -d > test.png
           printf '%%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 200 200]>>endobj\ntrailer<</Root 1 0 R>>\n%%%%EOF\n' > test.pdf
 
           status=0
+          # PDFs go to the raw endpoint: Cloudinary blocks delivery of PDFs
+          # uploaded as images on new accounts, raw files are served as-is.
           for f in test.png test.pdf; do
+            case "$f" in
+              *.pdf) UPLOAD="https://api.cloudinary.com/v1_1/$CLOUD_NAME/raw/upload" ;;
+              *)     UPLOAD="https://api.cloudinary.com/v1_1/$CLOUD_NAME/image/upload" ;;
+            esac
             curl -sS -F "file=@$f" -F "upload_preset=$PRESET" "$UPLOAD" > "$f.json"
             url=$(jq -r '.secure_url // empty' "$f.json")
             id=$(jq -r '.public_id // empty' "$f.json")
@@ -63,7 +68,8 @@ jobs:
               echo "::error::Upload of $f failed: $(cat "$f.json")"; status=1; continue
             fi
             code=$(curl -sS -o /dev/null -w '%{http_code}' "$url")
-            echo "$f -> $url (HTTP $code)"
+            ctype=$(curl -sSI "$url" | grep -i '^content-type' | tr -d '\r' || true)
+            echo "$f -> $url (HTTP $code, $ctype)"
             if [ "$code" != 200 ]; then
               echo "::error::$f uploaded but is not viewable (HTTP $code). For PDFs enable Settings > Security > 'Allow delivery of PDF and ZIP files' in Cloudinary."
               status=1
