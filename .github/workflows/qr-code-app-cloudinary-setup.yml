@@ -52,14 +52,10 @@ jobs:
           echo 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==' | base64 -d > test.png
           printf '%%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 200 200]>>endobj\ntrailer<</Root 1 0 R>>\n%%%%EOF\n' > test.pdf
 
+          # Same endpoint the app uses
+          UPLOAD="https://api.cloudinary.com/v1_1/$CLOUD_NAME/auto/upload"
           status=0
-          # PDFs go to the raw endpoint: Cloudinary blocks delivery of PDFs
-          # uploaded as images on new accounts, raw files are served as-is.
           for f in test.png test.pdf; do
-            case "$f" in
-              *.pdf) UPLOAD="https://api.cloudinary.com/v1_1/$CLOUD_NAME/raw/upload" ;;
-              *)     UPLOAD="https://api.cloudinary.com/v1_1/$CLOUD_NAME/image/upload" ;;
-            esac
             curl -sS -F "file=@$f" -F "upload_preset=$PRESET" "$UPLOAD" > "$f.json"
             url=$(jq -r '.secure_url // empty' "$f.json")
             id=$(jq -r '.public_id // empty' "$f.json")
