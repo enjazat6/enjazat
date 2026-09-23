@@ -1,0 +1,68 @@
+{
+  "expo": {
+    "name": "مولد الباركود",
+    "slug": "qr-code-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.enjazat.qrcode",
+      "infoPlist": {
+        "CFBundleDevelopmentRegion": "ar",
+        "CFBundleAllowMixedLocalizations": true
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "package": "com.enjazat.qrcode"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "output": "single",
+      "name": "مولد الباركود",
+      "shortName": "مولد الباركود",
+      "lang": "ar",
+      "themeColor": "#0E7C66",
+      "backgroundColor": "#F5F7F6"
+    },
+    "plugins": [
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "يحتاج التطبيق الوصول إلى الصور لحفظ الباركود.",
+          "savePhotosPermission": "يحتاج التطبيق إذن حفظ الصور لحفظ الباركود في المعرض.",
+          "isAccessMediaLocationEnabled": false
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "يحتاج التطبيق الوصول إلى الصور لاختيار شعار يوضع في منتصف الباركود.",
+          "cameraPermission": false,
+          "microphonePermission": false
+        }
+      ],
+      "expo-sharing",
+      "@react-native-community/datetimepicker"
+    ],
+    "extra": {
+      "supportsRTL": true,
+      "eas": {
+        "projectId": "9b7f4c5d-30ca-48f0-8681-71177c9072f3"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/9b7f4c5d-30ca-48f0-8681-71177c9072f3"
+    }
+  }
+}

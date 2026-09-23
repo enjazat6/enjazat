@@ -1,0 +1,77 @@
+name: qr-code-app Cloudinary setup
+
+# Creates (or updates) the unsigned upload preset the app uses to upload menu
+# images/PDFs, then does a real test upload and checks the files are
+# reachable. The API secret stays in GitHub; the app never sees it.
+on:
+  push:
+    paths:
+      - '.github/workflows/qr-code-app-cloudinary-setup.yml'
+  workflow_dispatch:
+
+env:
+  CLOUD_NAME: y40obt0p
+  API_KEY: '622441217156834'
+  PRESET: qr_menu_unsigned
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create or update upload preset
+        env:
+          API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
+        run: |
+          set -euo pipefail
+          if [ -z "$API_SECRET" ]; then
+            echo "::error::Missing repository secret CLOUDINARY_API_SECRET"
+            exit 1
+          fi
+          BASE="https://api.cloudinary.com/v1_1/$CLOUD_NAME/upload_presets"
+          PARAMS=(-d unsigned=true -d folder=qr-menus -d unique_filename=true
+                  -d use_filename=false -d allowed_formats=jpg,jpeg,png,webp,heic,pdf)
+          code=$(curl -sS -o create.json -w '%{http_code}' -u "$API_KEY:$API_SECRET" \
+            -X POST "$BASE" -d name="$PRESET" "${PARAMS[@]}")
+          if [ "$code" = 200 ]; then
+            echo "Preset created"
+          else
+            echo "Create returned $code: $(cat create.json) - updating instead"
+            code=$(curl -sS -o update.json -w '%{http_code}' -u "$API_KEY:$API_SECRET" \
+              -X PUT "$BASE/$PRESET" "${PARAMS[@]}")
+            cat update.json; echo
+            [ "$code" = 200 ] || { echo "::error::Could not create/update preset ($code)"; exit 1; }
+            echo "Preset updated"
+          fi
+
+      - name: Test unsigned uploads (image + PDF)
+        env:
+          API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
+        run: |
+          set -euo pipefail
+          # 1x1 PNG and a minimal one-page PDF
+          echo 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==' | base64 -d > test.png
+          printf '%%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 200 200]>>endobj\ntrailer<</Root 1 0 R>>\n%%%%EOF\n' > test.pdf
+
+          # Same endpoint the app uses
+          UPLOAD="https://api.cloudinary.com/v1_1/$CLOUD_NAME/auto/upload"
+          status=0
+          for f in test.png test.pdf; do
+            curl -sS -F "file=@$f" -F "upload_preset=$PRESET" "$UPLOAD" > "$f.json"
+            url=$(jq -r '.secure_url // empty' "$f.json")
+            id=$(jq -r '.public_id // empty' "$f.json")
+            type=$(jq -r '.resource_type // "image"' "$f.json")
+            if [ -z "$url" ]; then
+              echo "::error::Upload of $f failed: $(cat "$f.json")"; status=1; continue
+            fi
+            code=$(curl -sS -o /dev/null -w '%{http_code}' "$url")
+            ctype=$(curl -sSI "$url" | grep -i '^content-type' | tr -d '\r' || true)
+            echo "$f -> $url (HTTP $code, $ctype)"
+            if [ "$code" != 200 ]; then
+              echo "::error::$f uploaded but is not viewable (HTTP $code). For PDFs enable Settings > Security > 'Allow delivery of PDF and ZIP files' in Cloudinary."
+              status=1
+            fi
+            # Clean up the test file
+            curl -sS -o /dev/null -u "$API_KEY:$API_SECRET" -X DELETE \
+              "https://api.cloudinary.com/v1_1/$CLOUD_NAME/resources/$type/upload?public_ids[]=$id"
+          done
+          exit $status

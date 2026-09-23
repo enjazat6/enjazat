@@ -1,0 +1,75 @@
+name: qr-code-app EAS Update
+
+# Publishes qr-code-app to EAS Update so it can be opened in Expo Go from a
+# permanent link. Requires the repository secret EXPO_TOKEN.
+on:
+  push:
+    paths:
+      - 'qr-code-app/**'
+      - '.github/workflows/qr-code-app-eas-update.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: qr-code-app-eas-update
+  cancel-in-progress: true
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: qr-code-app
+    steps:
+      - name: Check EXPO_TOKEN
+        working-directory: .
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          if [ -z "$EXPO_TOKEN" ]; then
+            echo "::error::Add the EXPO_TOKEN repository secret (Settings > Secrets and variables > Actions)."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: qr-code-app/package-lock.json
+
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Read project ID
+        id: project
+        run: echo "id=$(node -p "require('./app.json').expo.extra.eas.projectId")" >> "$GITHUB_OUTPUT"
+
+      # Fails harmlessly when the channel already exists
+      - name: Ensure channel
+        run: eas channel:create main --non-interactive || true
+
+      - name: Publish update
+        env:
+          MESSAGE: ${{ github.event.head_commit.message || 'Manual publish' }}
+        run: eas update --branch main --platform all --non-interactive --message "$MESSAGE"
+
+      - name: Summary
+        run: |
+          RUNTIME=$(node -e "console.log('exposdk:' + require('expo/package.json').version.split('.')[0] + '.0.0')")
+          URL="exp://u.expo.dev/${{ steps.project.outputs.id }}?runtime-version=${RUNTIME}&channel-name=main"
+          {
+            echo "## رابط التطبيق في Expo Go"
+            echo
+            echo '```'
+            echo "$URL"
+            echo '```'
+            echo
+            echo "![QR](https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=$(node -e "process.stdout.write(encodeURIComponent(process.argv[1]))" "$URL"))"
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "$URL"
